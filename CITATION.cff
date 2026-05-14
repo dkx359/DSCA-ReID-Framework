@@ -1,6 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite the corresponding paper."
 title: "Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks"
+repository-code: "https://github.com/dkx359/DSCA-ReID-Framework"
+url: "https://github.com/dkx359/DSCA-ReID-Framework"
 authors:
   - family-names: Du
     given-names: Kaixin
