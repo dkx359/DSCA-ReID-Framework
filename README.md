@@ -211,12 +211,12 @@ This code is intended for authorized robustness evaluation, red-teaming research
 If this repository helps your work, please cite the corresponding paper. A `CITATION.cff` file is included for GitHub citation support.
 
 ```bibtex
-@article{du2026dsca,
+@article{du2026security,
   title   = {Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks},
   author  = {Du, Kaixin and Ma, Bin and Yang, Meihong and Xu, Jian and Li, Xiaolong},
   journal = {IEEE Transactions on Information Forensics and Security},
   year    = {2026},
-  note    = {Accepted as a regular paper}
+  publisher = {IEEE}
 }
 ```
 
