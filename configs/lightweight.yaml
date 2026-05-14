@@ -1,0 +1,60 @@
+seed: 42
+device: cpu
+
+image:
+  height: 32
+  width: 16
+
+model:
+  pose_channels: 17
+  style_dim: 64
+  condition_dim: 16
+  latent_channels: 8
+  base_channels: 4
+  diffusion_steps: 12
+  beta_start: 0.0001
+  beta_end: 0.02
+  ddim_steps: 2
+  ddim_eta: 0.0
+
+uscc:
+  temperature_max: 2.0
+  temperature_min: 0.7
+  temperature_end: 1000
+  probability_floor: 0.001
+  lambda_boundary: 1.0
+  lambda_skeleton: 1.0
+  sharpness: 5.0
+  mask_scales: [1, 2, 4, 8]
+
+loss:
+  lambda_id_transfer: 1.0
+  lambda_visual: 1.5
+  lambda_diffusion: 0.5
+  visual_l2_weight: 1.0
+  visual_ssim_weight: 1.0
+  visual_perceptual_weight: 0.1
+  lambda_gate: 0.0
+
+surrogate:
+  embed_dim: 64
+  num_cnn: 1
+  num_transformer: 1
+
+train:
+  batch_size: 1
+  epochs: 1
+  lr: 0.0001
+  weight_decay: 0.00001
+  num_workers: 0
+  log_every: 1
+  checkpoint_dir: outputs/checkpoints
+  grad_accum_steps: 1
+  use_ema: true
+  ema_decay: 0.99
+  train_extractor: false
+  resume: ""
+
+data:
+  train_dir: ""
+  gallery_dir: ""

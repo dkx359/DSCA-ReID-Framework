@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+title: "DSCA-ReID Framework"
+message: "If you use this repository, please cite the corresponding paper."
+type: software
+authors:
+  - family-names: Du
+    given-names: Kaixin
+  - family-names: Ma
+    given-names: Bin
+  - family-names: Yang
+    given-names: Meihong
+  - family-names: Xu
+    given-names: Jian
+  - family-names: Li
+    given-names: Xiaolong
+repository-code: "https://github.com/<your-name>/DSCA-ReID-Framework"
+license: MIT
+version: "0.1.0"
+date-released: "2026-05-14"
+preferred-citation:
+  type: article
+  title: "Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks"
+  authors:
+    - family-names: Du
+      given-names: Kaixin
+    - family-names: Ma
+      given-names: Bin
+    - family-names: Yang
+      given-names: Meihong
+    - family-names: Xu
+      given-names: Jian
+    - family-names: Li
+      given-names: Xiaolong
+  journal: "IEEE Transactions on Information Forensics and Security"
+  year: 2026
