@@ -1,11 +1,13 @@
 # DSCA-ReID Framework
 
+[![tests](https://github.com/dkx359/DSCA-ReID-Framework/actions/workflows/tests.yml/badge.svg)](https://github.com/dkx359/DSCA-ReID-Framework/actions/workflows/tests.yml)
+
 A lightweight PyTorch research framework for **Diffusion-based Semantic Camouflage Attack (DSCA)** in person re-identification.
 
 This repository is designed for **code release, method understanding, and follow-up research extension**. It provides a clean and runnable implementation of the main DSCA module boundaries, including condition extraction, USCC fusion, dual-pathway identity injection, DDIM generation, surrogate-based identity alignment, and ReID-style evaluation metrics.
 
 > **Scope note**  
-> This repository does **not** bundle pretrained Stable Diffusion, OpenPose, DeepLabV3, CLIP, FastReID, OSNet, CPT, or other external checkpoints. The default backend is lightweight so that the project can run immediately after installation. To reproduce paper-level experimental numbers, replace the lightweight components with the corresponding pretrained external models and use the official ReID benchmark protocols.
+> This repository does **not** bundle pretrained Stable Diffusion, OpenPose, DeepLabV3, CLIP, FastReID, OSNet, CPT, or other external checkpoints. The default backend is lightweight so that the project can run immediately after installation. To reproduce paper-level experimental numbers, replace the lightweight components with the corresponding pretrained external models and use the official ReID benchmark protocols. Metrics produced by the lightweight backend, including ASR, mAP, and Rank-k, are intended only as pipeline sanity checks and should not be interpreted as paper-level results before the real pretrained modules are integrated.
 
 ## Main features
 
@@ -36,6 +38,9 @@ This repository is designed for **code release, method understanding, and follow
 
 ```text
 DSCA-ReID-Framework/
+├── .github/
+│   └── workflows/
+│       └── tests.yml
 ├── configs/
 │   ├── default.yaml
 │   └── lightweight.yaml
@@ -70,7 +75,7 @@ DSCA-ReID-Framework/
 ## Installation
 
 ```bash
-git clone https://github.com/<your-name>/DSCA-ReID-Framework.git
+git clone https://github.com/dkx359/DSCA-ReID-Framework.git
 cd DSCA-ReID-Framework
 pip install -r requirements.txt
 pip install -e .
@@ -82,6 +87,10 @@ For development and tests:
 pip install -r requirements-dev.txt
 pytest -q
 ```
+
+## Continuous integration
+
+This repository includes a GitHub Actions workflow at `.github/workflows/tests.yml`. The workflow runs on every push and pull request, installs the package, executes the unit tests, and runs the lightweight smoke check. It can also be triggered manually from the **Actions** tab.
 
 ## PyCharm import
 
@@ -196,7 +205,7 @@ This version includes:
 - identity transfer, visual consistency, diffusion denoising, and gate-diversity losses
 - training with AMP, EMA, cosine LR, gradient accumulation, and checkpoint resume
 - ASR, CMC/mAP, Rank-k, PSNR, SSIM, and surrogate-victim discrepancy metrics
-- unit tests and a CPU-friendly smoke check
+- unit tests, GitHub Actions CI, and a CPU-friendly smoke check
 
 ## Reproduction note
 
