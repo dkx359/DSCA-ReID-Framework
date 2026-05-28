@@ -15,6 +15,9 @@ authors = [
 keywords = ["person re-identification", "diffusion", "adversarial robustness", "semantic attack"]
 classifiers = [
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -27,6 +30,12 @@ dependencies = [
   "PyYAML>=6.0",
   "tqdm>=4.65",
 ]
+
+[project.urls]
+Homepage = "https://github.com/dkx359/DSCA-ReID-Framework"
+Repository = "https://github.com/dkx359/DSCA-ReID-Framework"
+Issues = "https://github.com/dkx359/DSCA-ReID-Framework/issues"
+Paper = "https://doi.org/10.1109/TIFS.2026.3689286"
 
 [tool.setuptools.packages.find]
 where = ["src"]
