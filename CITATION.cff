@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite the corresponding paper."
-title: "Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks"
+title: "Security Enhancement for Person Re-Identification Through Diffusion Driven Semantic Attacks"
 repository-code: "https://github.com/dkx359/DSCA-ReID-Framework"
 url: "https://github.com/dkx359/DSCA-ReID-Framework"
 authors:
@@ -16,7 +16,7 @@ authors:
     given-names: Xiaolong
 preferred-citation:
   type: article
-  title: "Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks"
+  title: "Security Enhancement for Person Re-Identification Through Diffusion Driven Semantic Attacks"
   authors:
     - family-names: Du
       given-names: Kaixin
@@ -30,5 +30,9 @@ preferred-citation:
       given-names: Xiaolong
   journal: "IEEE Transactions on Information Forensics and Security"
   year: 2026
+  volume: 21
+  start: 4785
+  end: 4800
+  doi: "10.1109/TIFS.2026.3689286"
   publisher:
     name: "IEEE"
