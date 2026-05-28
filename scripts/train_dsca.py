@@ -13,7 +13,7 @@ if str(PROJECT_ROOT / "scripts") not in sys.path:
 
 from torch.utils.data import DataLoader
 
-from dsca.config import load_config
+from dsca.config import load_config, validate_config
 from dsca.data.reid_dataset import ReIDImageDataset
 from dsca.data.pair_sampler import SourceTargetPairDataset
 from dsca.trainer import DSCATrainer
@@ -28,12 +28,10 @@ def main() -> None:
     parser.add_argument("--resume", default="", help="checkpoint path to resume from")
     args = parser.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = validate_config(load_config(args.config), require_train_dir=True)
     seed_everything(cfg.seed)
     device = resolve_device(cfg.device)
 
-    if not cfg.data.train_dir:
-        raise ValueError("Please set data.train_dir in the config file.")
     base = ReIDImageDataset(cfg.data.train_dir, image_size=(cfg.image.height, cfg.image.width))
     pairs = SourceTargetPairDataset(base)
     loader = DataLoader(
@@ -42,7 +40,7 @@ def main() -> None:
         shuffle=True,
         num_workers=cfg.train.num_workers,
         pin_memory=device.type == "cuda",
-        drop_last=True,
+        drop_last=False,
     )
 
     trainer = DSCATrainer(
