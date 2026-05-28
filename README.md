@@ -1,6 +1,9 @@
 # DSCA-ReID Framework
 
 [![tests](https://github.com/dkx359/DSCA-ReID-Framework/actions/workflows/tests.yml/badge.svg)](https://github.com/dkx359/DSCA-ReID-Framework/actions/workflows/tests.yml)
+[![DOI](https://img.shields.io/badge/DOI-10.1109%2FTIFS.2026.3689286-blue)](https://doi.org/10.1109/TIFS.2026.3689286)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.9-blue)](pyproject.toml)
 
 A lightweight PyTorch research framework for **Diffusion-based Semantic Camouflage Attack (DSCA)** in person re-identification.
 
