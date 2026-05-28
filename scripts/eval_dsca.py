@@ -14,7 +14,7 @@ if str(PROJECT_ROOT / "scripts") not in sys.path:
 import torch
 from torch.utils.data import DataLoader
 
-from dsca.config import load_config
+from dsca.config import load_config, validate_config
 from dsca.data.pair_sampler import SourceTargetPairDataset
 from dsca.data.reid_dataset import ReIDImageDataset
 from dsca.inferencer import DSCAInferencer
@@ -43,15 +43,18 @@ def main() -> None:
     parser.add_argument("--max-pairs", type=int, default=512)
     args = parser.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = validate_config(load_config(args.config), require_train_dir=True)
     seed_everything(cfg.seed)
     device = resolve_device(cfg.device)
 
-    if not cfg.data.train_dir:
-        raise ValueError("Set data.train_dir (used as the evaluation image pool).")
     base = ReIDImageDataset(cfg.data.train_dir, image_size=(cfg.image.height, cfg.image.width))
     pairs = SourceTargetPairDataset(base)
-    loader = DataLoader(pairs, batch_size=min(32, cfg.train.batch_size), shuffle=False, num_workers=cfg.train.num_workers)
+    loader = DataLoader(
+        pairs,
+        batch_size=min(32, cfg.train.batch_size),
+        shuffle=False,
+        num_workers=cfg.train.num_workers,
+    )
 
     generator = build_generator(cfg)
     extractor = build_extractor(cfg)
@@ -97,6 +100,9 @@ def main() -> None:
         disc_count += 1
         seen += source.shape[0]
 
+    if not cam_feats:
+        raise RuntimeError("No evaluation pairs were processed. Check data.train_dir and --max-pairs.")
+
     cam_feats = torch.cat(cam_feats)
     src_feats = torch.cat(src_feats)
     tgt_feats = torch.cat(tgt_feats)
@@ -114,8 +120,10 @@ def main() -> None:
     print(f"Targeted ASR (Rank-1)        : {asr * 100:.2f}%")
     print(f"Rank-10 (clean -> attack)    : {cmc_clean[-1] * 100:.2f}% -> {cmc_attack[-1] * 100:.2f}%")
     print(f"mAP     (clean -> attack)    : {map_clean * 100:.2f}% -> {map_attack * 100:.2f}%")
-    print(f"PSNR / SSIM (camouflage,src) : {sum(psnr_vals) / len(psnr_vals):.2f} dB / "
-          f"{sum(ssim_vals) / len(ssim_vals):.4f}")
+    print(
+        f"PSNR / SSIM (camouflage,src) : {sum(psnr_vals) / len(psnr_vals):.2f} dB / "
+        f"{sum(ssim_vals) / len(ssim_vals):.4f}"
+    )
     print(f"Surrogate-victim delta_mean  : {disc_mean / max(1, disc_count):.4f}")
     print("=" * 60)
 
