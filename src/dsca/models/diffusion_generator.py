@@ -68,11 +68,12 @@ class LatentDecoder(nn.Module):
 class ConditionalDenoisingUNet(nn.Module):
     """U-Net with explicit depth scheduling for dual-pathway injection (paper Eq. 25).
 
-    Layer subsets follow the paper:
-      * S_str (structure): encoder + early upsampling blocks  -> enc1, enc2, dec2
-      * S_sty (appearance): bottleneck + decoder blocks        -> mid, dec1
-    Some decoder layers belong to both; this is the only place the pathways
-    overlap, mirroring the paper's "mainly covering" wording.
+    Layer subsets follow the framework's default lightweight schedule:
+      * S_str (structure): encoder + late upsampling blocks -> enc1, enc2, dec2
+      * S_sty (appearance): bottleneck + decoder blocks    -> mid, dec1
+
+    The schedule is intentionally explicit so that downstream users can map the
+    same structure/style separation to a Stable Diffusion U-Net replacement.
     """
 
     def __init__(self, latent_channels: int, condition_dim: int) -> None:
@@ -163,16 +164,6 @@ class DSCAGenerator(nn.Module):
         )
         self.denoiser = ConditionalDenoisingUNet(latent_channels, condition_dim)
         self.scheduler = DDIMScheduler(diffusion_steps, beta_start, beta_end)
-
-    def _apply(self, fn):  # type: ignore[override]
-        # Ensures the (non-Parameter) scheduler buffers follow .to()/.cuda()/.cpu().
-        module = super()._apply(fn)
-        try:
-            probe = fn(torch.zeros(1))
-            self.scheduler.to(probe.device)
-        except Exception:
-            pass
-        return module
 
     def compose_conditions(self, conditions: DSCAConditions, temperature: float) -> USCCOutput:
         return self.uscc(conditions, temperature=temperature)
