@@ -220,12 +220,16 @@ This code is intended for authorized robustness evaluation, red-teaming research
 If this repository helps your work, please cite the corresponding paper. A `CITATION.cff` file is included for GitHub citation support.
 
 ```bibtex
-@article{du2026security,
-  title   = {Security Enhancement for Person Re-Identification through Diffusion Driven Semantic Attacks},
-  author  = {Du, Kaixin and Ma, Bin and Yang, Meihong and Xu, Jian and Li, Xiaolong},
-  journal = {IEEE Transactions on Information Forensics and Security},
-  year    = {2026},
-  publisher = {IEEE}
+@ARTICLE{du2026security,
+  author={Du, Kaixin and Ma, Bin and Yang, Meihong and Xu, Jian and Li, Xiaolong},
+  journal={IEEE Transactions on Information Forensics and Security},
+  title={Security Enhancement for Person Re-Identification Through Diffusion Driven Semantic Attacks},
+  year={2026},
+  volume={21},
+  number={},
+  pages={4785-4800},
+  keywords={Motion pictures;Broadcasting;Feedback;Circuits;MIMICs;Millimeter wave integrated circuits;Monolithic integrated circuits;Pixel;Protocols;Digital images;ReID security;zero-query black-box attacks;generative diffusion models;identity impersonation;cross-model transferability},
+  doi={10.1109/TIFS.2026.3689286}
 }
 ```
 
