@@ -80,10 +80,14 @@ class DSCATrainer:
             lambda_gate=lambda_gate,
         ).to(device)
 
-        params = [p for p in self.generator.parameters() if p.requires_grad]
+        self.trainable_params = [p for p in self.generator.parameters() if p.requires_grad]
         if train_extractor:
-            params += [p for p in self.extractor.parameters() if p.requires_grad]
-        self.optim = torch.optim.AdamW(params, lr=cfg.train.lr, weight_decay=cfg.train.weight_decay)
+            self.trainable_params += [p for p in self.extractor.parameters() if p.requires_grad]
+        if not self.trainable_params:
+            raise ValueError("No trainable parameters found for DSCATrainer")
+        self.optim = torch.optim.AdamW(
+            self.trainable_params, lr=cfg.train.lr, weight_decay=cfg.train.weight_decay
+        )
 
         total_steps = max(1, cfg.train.epochs)
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim, T_max=total_steps)
@@ -115,17 +119,17 @@ class DSCATrainer:
                 else:
                     with torch.no_grad():
                         conditions = self.extractor(target)
-                outputs = self.generator(
-                    source, conditions, temperature=self.temperature(global_step)
-                )
+                outputs = self.generator(source, conditions, temperature=self.temperature(global_step))
                 losses = self.loss_fn(outputs, source, target)
                 loss = losses["total"] / self.grad_accum_steps
 
             self.scaler.scale(loss).backward()
 
-            if (i + 1) % self.grad_accum_steps == 0:
+            is_accum_step = (i + 1) % self.grad_accum_steps == 0
+            is_last_step = (i + 1) == len(loader)
+            if is_accum_step or is_last_step:
                 self.scaler.unscale_(self.optim)
-                nn.utils.clip_grad_norm_(self.generator.parameters(), max_norm=1.0)
+                nn.utils.clip_grad_norm_(self.trainable_params, max_norm=1.0)
                 self.scaler.step(self.optim)
                 self.scaler.update()
                 self.optim.zero_grad(set_to_none=True)
