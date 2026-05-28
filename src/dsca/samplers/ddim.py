@@ -1,52 +1,54 @@
 from __future__ import annotations
 
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 
 
-class DDIMScheduler:
-    """DDPM forward process for training and deterministic DDIM sampling for inference.
+class DDIMScheduler(nn.Module):
+    """DDPM forward process for training and DDIM sampling for inference.
 
-    Training uses the standard noise-prediction objective (paper Eq. 20).
-    Inference uses the deterministic DDIM update (paper Eq. 21-22) with optional
-    stochasticity controlled by ``eta`` (eta=0.0 is fully deterministic).
+    The scheduler is an ``nn.Module`` so that diffusion buffers follow normal
+    ``.to()``, ``.cuda()``, ``.cpu()``, and dtype conversions without custom
+    device hooks in the generator. The buffers are non-persistent because they
+    are fully determined by ``steps``, ``beta_start``, and ``beta_end``.
     """
 
     def __init__(self, steps: int, beta_start: float = 1e-4, beta_end: float = 2e-2) -> None:
+        super().__init__()
         if steps < 1:
             raise ValueError(f"diffusion steps must be >= 1, got {steps}")
+        if not 0.0 < beta_start < beta_end < 1.0:
+            raise ValueError(
+                "expected 0 < beta_start < beta_end < 1, "
+                f"got beta_start={beta_start}, beta_end={beta_end}"
+            )
         self.steps = steps
-        self.betas = torch.linspace(beta_start, beta_end, steps)
-        self.alphas = 1.0 - self.betas
-        self.alpha_bars = torch.cumprod(self.alphas, dim=0)
-        self._device = torch.device("cpu")
-
-    def to(self, device: torch.device | str) -> "DDIMScheduler":
-        device = torch.device(device)
-        self.betas = self.betas.to(device)
-        self.alphas = self.alphas.to(device)
-        self.alpha_bars = self.alpha_bars.to(device)
-        self._device = device
-        return self
+        betas = torch.linspace(beta_start, beta_end, steps)
+        alphas = 1.0 - betas
+        alpha_bars = torch.cumprod(alphas, dim=0)
+        self.register_buffer("betas", betas, persistent=False)
+        self.register_buffer("alphas", alphas, persistent=False)
+        self.register_buffer("alpha_bars", alpha_bars, persistent=False)
 
     @property
     def device(self) -> torch.device:
-        return self._device
+        return self.alpha_bars.device
 
     def sample_timesteps(self, batch_size: int, device: torch.device) -> Tensor:
         return torch.randint(0, self.steps, (batch_size,), device=device, dtype=torch.long)
 
     def _gather(self, values: Tensor, timesteps: Tensor, ref: Tensor) -> Tensor:
-        out = values.to(ref.device)[timesteps.to(values.device)].to(ref.device)
+        values = values.to(device=ref.device, dtype=ref.dtype)
+        out = values[timesteps.to(ref.device)]
         return out.view(-1, *([1] * (ref.dim() - 1)))
 
     def add_noise(self, x0: Tensor, noise: Tensor, timesteps: Tensor) -> Tensor:
-        """Forward diffusion: q(z_t | z_0) (paper Eq. 19)."""
+        """Forward diffusion q(z_t | z_0), matching the paper's Eq. 19."""
         a = self._gather(self.alpha_bars, timesteps, x0)
         return torch.sqrt(a) * x0 + torch.sqrt(1.0 - a) * noise
 
     def predict_x0(self, zt: Tensor, pred_noise: Tensor, timesteps: Tensor) -> Tensor:
-        """Recover the clean latent estimate x_hat_0 (paper Eq. 21)."""
+        """Recover the clean latent estimate x_hat_0, matching the paper's Eq. 21."""
         a = self._gather(self.alpha_bars, timesteps, zt)
         return (zt - torch.sqrt(1.0 - a) * pred_noise) / torch.sqrt(a).clamp_min(1e-8)
 
@@ -64,12 +66,12 @@ class DDIMScheduler:
         return dedup
 
     def step(self, zt: Tensor, pred_noise: Tensor, t: int, next_t: int, eta: float = 0.0) -> Tensor:
-        """One DDIM update from step ``t`` to ``next_t`` (paper Eq. 22).
+        """One DDIM update from step ``t`` to ``next_t``.
 
-        ``eta=0`` gives the deterministic DDIM sampler used at inference.
+        ``eta=0`` gives the deterministic DDIM sampler used by default at inference.
         """
-        a_t = self.alpha_bars[t].to(zt.device)
-        a_next = self.alpha_bars[max(next_t, 0)].to(zt.device)
+        a_t = self.alpha_bars[t].to(device=zt.device, dtype=zt.dtype)
+        a_next = self.alpha_bars[max(next_t, 0)].to(device=zt.device, dtype=zt.dtype)
         x0 = (zt - torch.sqrt(1.0 - a_t) * pred_noise) / torch.sqrt(a_t).clamp_min(1e-8)
         x0 = x0.clamp(-3.0, 3.0)  # mild stabilisation against latent blow-up
         if eta > 0.0 and next_t > 0:
