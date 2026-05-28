@@ -13,7 +13,7 @@ if str(PROJECT_ROOT / "scripts") not in sys.path:
 
 import torch
 
-from dsca.config import load_config
+from dsca.config import load_config, validate_config
 from dsca.inferencer import DSCAInferencer
 from dsca.utils.device import resolve_device
 from dsca.utils.io import load_image, save_image
@@ -30,7 +30,7 @@ def main() -> None:
     parser.add_argument("--out", default="outputs/infer/camouflage.png")
     args = parser.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = validate_config(load_config(args.config))
     device = resolve_device(cfg.device)
     generator = build_generator(cfg)
     extractor = build_extractor(cfg)
